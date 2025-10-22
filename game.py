@@ -2,6 +2,9 @@ import pygame
 from dataclasses import dataclass
 from collections import deque
 
+# -----------------------------
+# CONFIG ปรับได้
+# -----------------------------
 WIDTH, HEIGHT = 520, 760
 FLOORS = 10
 COLS = 3
@@ -9,16 +12,23 @@ ROOM_W, ROOM_H = 140, 110
 FLOOR_GAP = 150
 SIDE_MARGIN = 40
 COL_GAP = 30
+
 PLAYER_SPEED = 250.0
 CAM_FOLLOW = 0.1
+
 BG = (18, 20, 28)
 ROOM_COLOR = (70, 110, 160)
 ROOM_CENTER = (110, 170, 220)
 ROOM_TARGET = (255, 190, 90)
+PLAYER_COLOR = (255, 236, 90) #เดะเปลียนเป็นตัวละครทีหลังตอนนี้เอาจุดโง่ๆไปก่อน55
+TEXT = (235, 235, 235)
+LINK_COLOR = (46, 60, 90)
+
 pygame.init()
+FONT = pygame.font.SysFont("consolas", 18)
+BIG = pygame.font.SysFont("consolas", 24)
 
 @dataclass(frozen=True)
-
 class NodeId:
     floor: int
     col: int
@@ -30,12 +40,15 @@ class Room:
 
 def build_tower():
     rooms = {}
+    links = {}
     total_w = COLS * ROOM_W + (COLS - 1) * COL_GAP
     start_x = (WIDTH - total_w) // 2
+
     cols_x = []
     for c in range(COLS):
         x = start_x + c * (ROOM_W + COL_GAP)
         cols_x.append(x)
+
     for f in range(FLOORS):
         y = HEIGHT - 120 - f * FLOOR_GAP
         for c in range(COLS):
@@ -43,7 +56,8 @@ def build_tower():
             rect = pygame.Rect(cols_x[c], y, ROOM_W, ROOM_H)
             room = Room(node, rect)
             rooms[node] = room
-for f in range(FLOORS):
+
+    for f in range(FLOORS):
         for c in range(COLS):
             node = NodeId(f, c)
             neigh = []
@@ -75,13 +89,13 @@ def shortest_path(links, start: NodeId, goal: NodeId):
                 prev[v] = u
                 q.append(v)
                 if v == goal:
-                    # reconstruct
                     path = [v]
                     while prev[path[-1]] is not None:
                         path.append(prev[path[-1]])
                     path.reverse()
                     return path
     return []
+
 def draw_connections(screen, rooms, links, cam_y):
     for node, neighs in links.items():
         p1 = center_of(rooms[node].rect)
