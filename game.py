@@ -1,5 +1,4 @@
 import pygame
-from dataclasses import dataclass
 from collections import deque
 
 WIDTH, HEIGHT = 520, 760
@@ -25,10 +24,10 @@ pygame.init()
 FONT = pygame.font.SysFont("consolas", 18)
 BIG = pygame.font.SysFont("consolas", 24)
 
-@dataclass(frozen=True)
 class NodeId:
-    floor: int
-    col: int
+    def __init__(self, floor, col):
+        self.floor = floor
+        self.col = col
 
 class Room:
     def __init__(self, node_id: NodeId, rect: pygame.Rect):
@@ -101,4 +100,5 @@ def draw_connections(screen, rooms, links, cam_y):
                 continue
             p2 = center_of(rooms[v].rect)
             pygame.draw.line(screen, LINK_COLOR, (p1.x, p1.y + cam_y), (p2.x, p2.y + cam_y), 3)
+
 
