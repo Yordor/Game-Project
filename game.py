@@ -1,7 +1,7 @@
 import pygame
 
 WIDTH, HEIGHT, FPS = 750, 750, 60
-FLOORS, COLS = 2,2
+FLOORS, COLS = 3,3
 ROOM_W, ROOM_H = 140, 110
 FLOOR_GAP, COL_GAP = 150, 30
 PLAYER_SPEED = 250.0
@@ -119,4 +119,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
