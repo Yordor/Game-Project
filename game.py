@@ -2,9 +2,6 @@ import pygame
 from dataclasses import dataclass
 from collections import deque
 
-# -----------------------------
-# CONFIG ปรับได้
-# -----------------------------
 WIDTH, HEIGHT = 520, 760
 FLOORS = 10
 COLS = 3
@@ -104,3 +101,4 @@ def draw_connections(screen, rooms, links, cam_y):
                 continue
             p2 = center_of(rooms[v].rect)
             pygame.draw.line(screen, LINK_COLOR, (p1.x, p1.y + cam_y), (p2.x, p2.y + cam_y), 3)
+
