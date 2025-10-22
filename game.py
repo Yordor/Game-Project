@@ -1,104 +1,121 @@
 import pygame
-from collections import deque
 
-WIDTH, HEIGHT = 520, 760
-FLOORS = 10
-COLS = 3
+WIDTH, HEIGHT, FPS = 750, 750, 60
+FLOORS, COLS = 3, 2
 ROOM_W, ROOM_H = 140, 110
-FLOOR_GAP = 150
-SIDE_MARGIN = 40
-COL_GAP = 30
-
+FLOOR_GAP, COL_GAP = 150, 30
 PLAYER_SPEED = 250.0
-CAM_FOLLOW = 0.1
-
 BG = (18, 20, 28)
-ROOM_COLOR = (70, 110, 160)
-ROOM_CENTER = (110, 170, 220)
+ROOM = (70, 110, 160)
 ROOM_TARGET = (255, 190, 90)
-PLAYER_COLOR = (255, 236, 90) #เดะเปลียนเป็นตัวละครทีหลังตอนนี้เอาจุดโง่ๆไปก่อน55
-TEXT = (235, 235, 235)
-LINK_COLOR = (46, 60, 90)
+PLAYER_COLOR = (255, 236, 90)
+PLAYER_IMG_PATH = "player.png"
+PLAYER_IMG_SIZE = (46, 46)
 
 pygame.init()
-FONT = pygame.font.SysFont("consolas", 18)
-BIG = pygame.font.SysFont("consolas", 24)
 
-class NodeId:
-    def __init__(self, floor, col):
-        self.floor = floor
-        self.col = col
+def center(rect):
+    return pygame.Vector2(rect.centerx, rect.centery)
 
-class Room:
-    def __init__(self, node_id: NodeId, rect: pygame.Rect):
-        self.id = node_id
-        self.rect = rect
-
-def build_tower():
+def build_rooms():
     rooms = {}
-    links = {}
     total_w = COLS * ROOM_W + (COLS - 1) * COL_GAP
     start_x = (WIDTH - total_w) // 2
-
-    cols_x = []
-    for c in range(COLS):
-        x = start_x + c * (ROOM_W + COL_GAP)
-        cols_x.append(x)
-
+    cols_x = [start_x + c * (ROOM_W + COL_GAP) for c in range(COLS)]
     for f in range(FLOORS):
         y = HEIGHT - 120 - f * FLOOR_GAP
         for c in range(COLS):
-            node = NodeId(f, c)
-            rect = pygame.Rect(cols_x[c], y, ROOM_W, ROOM_H)
-            room = Room(node, rect)
-            rooms[node] = room
+            rooms[(f, c)] = pygame.Rect(cols_x[c], y, ROOM_W, ROOM_H)
+    return rooms
 
-    for f in range(FLOORS):
-        for c in range(COLS):
-            node = NodeId(f, c)
-            neigh = []
-            if c - 1 >= 0:
-                neigh.append(NodeId(f, c - 1))
-            if c + 1 < COLS:
-                neigh.append(NodeId(f, c + 1))
-            if c == 1:
-                if f + 1 < FLOORS:
-                    neigh.append(NodeId(f + 1, c))
-                if f - 1 >= 0:
-                    neigh.append(NodeId(f - 1, c))
-            links[node] = neigh
+def in_bounds(node):
+    f, c = node
+    return 0 <= f < FLOORS and 0 <= c < COLS
 
-    return rooms, links
+def is_neighbor(a, b):
+    return (abs(a[0] - b[0]) + abs(a[1] - b[1])) == 1
 
-def center_of(rect: pygame.Rect):
-    return pygame.Vector2(rect.centerx, rect.centery)
+def load_player_image():
+    try:
+        img = pygame.image.load(PLAYER_IMG_PATH).convert_alpha()
+        if PLAYER_IMG_SIZE:
+            img = pygame.transform.smoothscale(img, PLAYER_IMG_SIZE)
+        return img
+    except Exception as e:
+        return None
 
-def shortest_path(links, start: NodeId, goal: NodeId):
-    if start == goal:
-        return [start]
-    q = deque([start])
-    prev = {start: None}
-    while q:
-        u = q.popleft()
-        for v in links[u]:
-            if v not in prev:
-                prev[v] = u
-                q.append(v)
-                if v == goal:
-                    path = [v]
-                    while prev[path[-1]] is not None:
-                        path.append(prev[path[-1]])
-                    path.reverse()
-                    return path
-    return []
+def main():
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("เกมหอคอยสุดโหดดXD")
+    clock = pygame.time.Clock()
 
-def draw_connections(screen, rooms, links, cam_y):
-    for node, neighs in links.items():
-        p1 = center_of(rooms[node].rect)
-        for v in neighs:
-            if v.floor < node.floor:
-                continue
-            p2 = center_of(rooms[v].rect)
-            pygame.draw.line(screen, LINK_COLOR, (p1.x, p1.y + cam_y), (p2.x, p2.y + cam_y), 3)
+    rooms = build_rooms()
+    start = (0, 1) if (0, 1) in rooms else (0, 0)
+    current = start
+    target = start
+    player_pos = center(rooms[current])
 
+    player_img = load_player_image()
 
+    running = True
+    while running:
+        dt = clock.tick(FPS) / 1000.0
+
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                running = False
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE:
+                    running = False
+                elif e.key in (pygame.K_LEFT, pygame.K_a):
+                    nxt = (current[0], current[1] - 1)
+                    if in_bounds(nxt): target = nxt
+                elif e.key in (pygame.K_RIGHT, pygame.K_d):
+                    nxt = (current[0], current[1] + 1)
+                    if in_bounds(nxt): target = nxt
+                elif e.key in (pygame.K_UP, pygame.K_w):
+                    nxt = (current[0] + 1, current[1])
+                    if in_bounds(nxt): target = nxt
+                elif e.key in (pygame.K_DOWN, pygame.K_s):
+                    nxt = (current[0] - 1, current[1])
+                    if in_bounds(nxt): target = nxt
+
+            elif e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
+                mx, my = e.pos
+                clicked = None
+                for node, rect in rooms.items():
+                    if rect.collidepoint(mx, my):
+                        clicked = node
+                        break
+                if clicked and is_neighbor(current, clicked):
+                    target = clicked
+
+        goal = center(rooms[target])
+        delta = goal - player_pos
+        dist = delta.length()
+        if dist > 1.0:
+            step = min(dist, PLAYER_SPEED * dt)
+            player_pos += delta.normalize() * step
+        else:
+            player_pos = goal
+            current = target
+
+        screen.fill(BG)
+        for rect in rooms.values():
+            pygame.draw.rect(screen, ROOM, rect, border_radius=8)
+        pygame.draw.rect(screen, ROOM_TARGET, rooms[target], width=3, border_radius=8)
+
+        if player_img:
+            offx, offy = player_img.get_width() // 2, player_img.get_height() // 2
+            screen.blit(player_img, (player_pos.x - offx, player_pos.y - offy))
+        else:
+            pr = pygame.Rect(0, 0, 32, 42)
+            pr.center = (int(player_pos.x), int(player_pos.y))
+            pygame.draw.rect(screen, PLAYER_COLOR, pr, border_radius=8)
+
+        pygame.display.flip()
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
