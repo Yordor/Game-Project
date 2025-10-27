@@ -170,9 +170,7 @@ def main():
         if boss_msg:
             t = FONT.render("== BOSS ROOM ==", True, TEXT_COLOR)
             s.blit(t, (WIDTH / 2 - t.get_width() / 2, 40))
-
         pygame.display.flip()
-
     pygame.quit()
 
 if __name__ == "__main__":
