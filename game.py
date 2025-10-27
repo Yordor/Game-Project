@@ -1,6 +1,6 @@
 import pygame
 
-WIDTH, HEIGHT, FPS = 750, 750 # ขนาดหน้าต่าง + เฟรมเรต
+WIDTH, HEIGHT, FPS = 750, 750 , 60 # ขนาดหน้าต่าง + เฟรมเรต
 FLOORS, COLS = 6, 5 # จำนวนชั้น + จำนวนห้องต่อชั้น
 ROOM_W, ROOM_H = 140, 110 # ขนาดห้อง(มอน)
 FLOOR_GAP, COL_GAP = 150, 30 # ระยะห่างระหว่างชั้น/ห้อง
@@ -84,7 +84,7 @@ def load_img():
             img = pygame.transform.smoothscale(img, PLAYER_IMG_SIZE)
         return img
     except Exception as e:
-        print(f"[WARN] โหลดรูปผู้เล่นไม่ได้: {e}")
+        print(f"โหลดรูปผู้เล่นไม่ได้: {e}")
         return None
 #------------------------------------------
 # วาดลูกศรสามเหลี่ยม(บอกห้องเดินที่ไปได้)
@@ -227,3 +227,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
