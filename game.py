@@ -71,39 +71,28 @@ def draw_direction_arrows(screen, room_rect: pygame.Rect, neighbors, cam_y):
     for nf, nc in neighbors['list']:
         if nf == f and nc == c - 1: dirs.add('L')
         if nf == f and nc == c + 1: dirs.add('R')
-        if nf == f + 1 and nc == c: dirs.add('U')
-        if nf == f - 1 and nc == c: dirs.add('D')
+        if nf == f + 1: dirs.add('U')
+        if nf == f - 1: dirs.add('D')
 
     s = 14
     cx, cy = rr.centerx, rr.centery
-    padding = 8
+    padding = 16
 
     def tri(points):
         pygame.draw.polygon(screen, ARROW_COLOR, points)
 
     if 'L' in dirs:
         x = rr.left + padding
-        tri([(x, cy),
-             (x + s, cy - s//2),
-             (x + s, cy + s//2)])
-
+        tri([(x, cy), (x + s, cy - s//2), (x + s, cy + s//2)])
     if 'R' in dirs:
         x = rr.right - padding
-        tri([(x, cy),
-             (x - s, cy - s//2),
-             (x - s, cy + s//2)])
-
+        tri([(x, cy), (x - s, cy - s//2), (x - s, cy + s//2)])
     if 'U' in dirs:
         y = rr.top + padding
-        tri([(cx, y),
-             (cx - s//2, y + s),
-             (cx + s//2, y + s)])
-
+        tri([(cx, y), (cx - s//2, y + s), (cx + s//2, y + s)])
     if 'D' in dirs:
         y = rr.bottom - padding
-        tri([(cx, y),
-             (cx - s//2, y - s),
-             (cx + s//2, y - s)])
+        tri([(cx, y), (cx - s//2, y - s), (cx + s//2, y - s)])
 
 def build_tower():
     rooms = {}
@@ -113,9 +102,8 @@ def build_tower():
     total_w = COLS * ROOM_W + (COLS - 1) * COL_GAP
     start_x = (WIDTH - total_w) // 2
     cols_x = [start_x + i * (ROOM_W + COL_GAP) for i in range(COLS)]
-    stair = stair_col_for(COLS)
+    stair = (COLS // 2) if (COLS % 2 == 1) else (COLS // 2) - 1
 
-    # ชั้นปกติ
     for f in range(FLOORS - 1):
         y = HEIGHT - 120 - f * FLOOR_GAP
         for c in range(COLS):
@@ -124,7 +112,6 @@ def build_tower():
             name = order[f % len(order)]
             monsters[(f, c)] = Monster(name, MONSTER_STATS[name])
 
-    # ชั้นบอส
     top = FLOORS - 1
     y = HEIGHT - 120 - top * FLOOR_GAP
     boss_rect = pygame.Rect(start_x, y, total_w, int(ROOM_H * 1.2))
@@ -137,16 +124,15 @@ def build_tower():
             neigh = []
             if c - 1 >= 0: neigh.append((f, c - 1))
             if c + 1 < COLS: neigh.append((f, c + 1))
-            if c == stair:
-                if f + 1 < FLOORS - 1: neigh.append((f + 1, c))
-                if f - 1 >= 0: neigh.append((f - 1, c))
+            if f + 1 < FLOORS - 1: neigh.append((f + 1, c))
+            if f - 1 >= 0:         neigh.append((f - 1, c))
             links[(f, c)] = neigh
 
-    links[(FLOORS - 2, stair)].append(BOSS_ID)
-    links[BOSS_ID] = [(FLOORS - 2, stair)]
+    for c in range(COLS):
+        links[(FLOORS - 2, c)].append(BOSS_ID)
+    links[BOSS_ID] = [(FLOORS - 2, c) for c in range(COLS)]
 
     return rooms, links, monsters, BOSS_ID, stair
-
 def is_neighbor(links, a, b):
     return b in links.get(a, [])
 
