@@ -1,0 +1,212 @@
+import sys
+import pygame
+
+from button import Button
+from config import (
+    WIDTH, HEIGHT, FPS,
+    PLAYER_SPEED, CAM_FOLLOW,
+    PLAYER_IMG_PATH,
+    BG, TEXT,
+)
+from player import Player
+from tower import (
+    center_of,
+    load_monster_images, load_item_images,load_room_backgrounds,
+    build_tower, is_neighbor,
+    draw_direction_arrows, draw_rooms_and_entities,
+)
+from combat import fight_until_end
+from item import apply_item
+
+pygame.init()
+FONT = pygame.font.SysFont("consolas", 20)
+
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+
+def load_player_image():
+    try:
+        img = pygame.image.load(PLAYER_IMG_PATH).convert_alpha()
+        return pygame.transform.smoothscale(img, (46, 46))
+    except:
+        return None
+def get_font(size):
+    return pygame.font.Font("assets/font.ttf", size)
+
+def main_menu():
+    while True:
+
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
+
+        MENU_TEXT = get_font(150).render("MAIN MENU", True, "#b68f40")
+        MENU_RECT = MENU_TEXT.get_rect(center=(940, 100))
+
+        PLAY_BUTTON = Button(image=pygame.image.load("assets/Play_Rect.png"), pos=(940, 450),
+                         text_input="PLAY", font=get_font(75), base_color="#000000", hovering_color="White")
+        QUIT_BUTTON = Button(image=pygame.image.load("assets/Quit_Rect.png"), pos=(940, 750),
+                         text_input="QUIT", font=get_font(75), base_color="#000000", hovering_color="White")
+        SCREEN.blit(MENU_TEXT, MENU_RECT)
+
+        for button in [PLAY_BUTTON, QUIT_BUTTON]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(SCREEN)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    main()
+                if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.update()
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("หอคอย")
+    clock = pygame.time.Clock()
+
+    font = pygame.font.SysFont("consolas", 20)
+
+    rooms, links, monsters, items, BOSS_ID, stair = build_tower()
+    player = Player()
+
+    player_img = load_player_image()
+    if player_img:
+        img_off = pygame.Vector2(player_img.get_width() // 2,
+                                 player_img.get_height() // 2)
+    else:
+        img_off = pygame.Vector2(0, 0)
+
+    monster_images = load_monster_images()
+    item_images = load_item_images()
+    room_bg, boss_bg = load_room_backgrounds()
+    
+    current = (0, stair)
+    pos = center_of(rooms[current])
+    path = [current]
+    cam_y = 0.0
+
+    running = True
+    while running:
+        dt = clock.tick(FPS) / 1000.0
+
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                running = False
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE:
+                    running = False
+                else:
+                    f, c = current
+                    candidate = None
+                    if e.key == pygame.K_LEFT:
+                        cand = (f, c - 1)
+                        if cand in links[current]:
+                            candidate = cand
+                    elif e.key == pygame.K_RIGHT:
+                        cand = (f, c + 1)
+                        if cand in links[current]:
+                            candidate = cand
+                    elif e.key == pygame.K_UP:
+                        cand = (f + 1, c)
+                        if cand in links.get(current, []):
+                            candidate = cand
+                    elif e.key == pygame.K_DOWN:
+                        cand = (f - 1, c)
+                        if cand in links.get(current, []):
+                            candidate = cand
+
+                    if candidate:
+                        path = [current, candidate]
+
+            elif e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
+                mx, my = e.pos
+                world_y = my - cam_y
+                clicked = None
+                for key, rect in rooms.items():
+                    if rect.collidepoint(mx, world_y):
+                        clicked = key
+                        break
+                if clicked and is_neighbor(links, current, clicked):
+                    path = [current, clicked]
+
+        # การเคลื่อนที่
+        if len(path) >= 2:
+            nxt = path[1]
+            goal = center_of(rooms[nxt])
+            dx, dy = goal.x - pos.x, goal.y - pos.y
+            dist = (dx ** 2 + dy ** 2) ** 0.5
+
+            if dist < 2:
+                pos = goal
+                current = nxt
+                path.pop(0)
+
+                if current in monsters:
+                    mon = monsters[current]
+                    fight_until_end(screen, font, player, mon)
+
+                    if mon.hp <= 0:
+                        del monsters[current]
+
+                if current in items and player.hp > 0:
+                    item_name = items[current]
+                    apply_item(player, item_name)
+                    del items[current]
+
+            else:
+                step = PLAYER_SPEED * dt
+                pos.x += step * dx / dist
+                pos.y += step * dy / dist
+        else:
+            path = [current]
+
+        # กล้องตามผู้เล่น
+        cam_y += ((HEIGHT * 0.45 - (pos.y + cam_y)) * CAM_FOLLOW)
+
+        screen.fill(BG)
+
+        draw_rooms_and_entities(screen, rooms, monsters, items,
+                                BOSS_ID, cam_y, monster_images, item_images,
+                                room_bg, boss_bg, font)
+
+        neighbors = {"self": current, "list": links.get(current, [])}
+        draw_direction_arrows(screen, rooms[current], neighbors, cam_y)
+
+        # วาดผู้เล่น
+        if player_img:
+            screen.blit(player_img,
+                        (pos.x - img_off.x, pos.y - img_off.y + cam_y))
+        else:
+            pr = pygame.Rect(0, 0, 30, 40)
+            pr.center = (int(pos.x), int(pos.y + cam_y))
+            pygame.draw.rect(screen, (255, 236, 90), pr, border_radius=8)
+
+        player_text = font.render(
+            f"PLAYER | HP:{player.hp}  ATK:{player.atk}  DEF:{player.defense}",
+            True, TEXT
+        )
+        screen.blit(player_text, (15, HEIGHT - 80))
+
+        if current in monsters:
+            mon_now = monsters[current]
+            mon_text = font.render(
+                f"{mon_now.name} | HP:{mon_now.hp}  ATK:{mon_now.atk}  DEF:{mon_now.defense}",
+                True, TEXT
+            )
+        else:
+            mon_text = font.render("", True, TEXT)
+        screen.blit(mon_text, (15, HEIGHT - 50))
+
+        pygame.display.flip()
+
+    pygame.quit()
+    sys.exit()
+
+
+if __name__ == "__main__":
+    main_menu()
