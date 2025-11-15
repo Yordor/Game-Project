@@ -1,4 +1,5 @@
 import pygame
+from button import Button
 
 # ---------- CONFIG ----------
 WIDTH, HEIGHT = 1920, 1080
@@ -29,6 +30,8 @@ FONT = pygame.font.SysFont("consolas", 20)
 
 def stair_col_for(cols: int) -> int:
     return (cols // 2) if (cols % 2 == 1) else (cols // 2) - 1
+def get_font(size):
+    return pygame.font.Font("assets/font.ttf", size)
 
 # ---------- Stats ----------
 class Player:
@@ -51,7 +54,37 @@ MONSTER_STATS = {
     "Attack":   {"HP": 40, "ATK": 50, "DEF": 2},
     "BOSS":     {"HP": 220,"ATK": 40, "DEF": 12}
 }
+def main_menu():
+    while True:
 
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
+
+        MENU_TEXT = get_font(150).render("MAIN MENU", True, "#b68f40")
+        MENU_RECT = MENU_TEXT.get_rect(center=(940, 100))
+
+        PLAY_BUTTON = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(940, 450),
+                         text_input="PLAY", font=get_font(75), base_color="#000000", hovering_color="White")
+        QUIT_BUTTON = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(940, 750),
+                         text_input="QUIT", font=get_font(75), base_color="#000000", hovering_color="White")
+
+        SCREEN.blit(MENU_TEXT, MENU_RECT)
+
+        for button in [PLAY_BUTTON, QUIT_BUTTON]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(SCREEN)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    main()
+                if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.update()
 def center_of(rect):
     return pygame.Vector2(rect.centerx, rect.centery)
 
@@ -247,5 +280,5 @@ def main():
     pygame.quit()
 
 if __name__ == "__main__":
-    main()
+    main_menu()
 
