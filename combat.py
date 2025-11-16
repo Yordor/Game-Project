@@ -36,6 +36,19 @@ def fight_until_end(screen: pygame.Surface, font: pygame.font.Font,
 
         show_game_over(screen, font)
 def defeat_enemy(player: Player,monster: Monster):
-    player.hp += (monster.atk+monster.defense)//5
-    player.atk += monster.atk//10
-    player.defense += monster.defense//10
+    if monster.name == "Tank(HP)":
+        player.hp += 100
+    elif monster.name == "Tank(DEF)":
+        player.hp += 50
+        player.defense += 2
+    elif monster.name == "Attack":
+        player.hp += 30
+        player.atk += 3
+    elif monster.name == "Normal":
+        player.hp += 40
+        player.atk += 1
+    elif monster.name == "Boss":
+        player.hp += 200
+        player.atk += 5
+        player.defense += 3
+
