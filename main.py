@@ -31,6 +31,9 @@ def load_player_image():
         return None
 def get_font(size):
     return pygame.font.Font("assets/font.ttf", size)
+def draw_text(text,font,text_col,x,y):
+    img = font.render(text, True, text_col)
+    SCREEN.blit(img, (x, y))
 
 def main_menu():
     while True:
@@ -62,7 +65,17 @@ def main_menu():
                     sys.exit()
 
         pygame.display.update()
+def end(HP,ATK,DEF):
+    while True:
+        SCREEN.fill((0, 0, 0))
+        draw_text("Final Score",get_font((150)),(255,255,255),640,150)
+        draw_text(f"HP score = {HP}", get_font((75)), (255, 255, 255), 640, 450)
+        draw_text(f"Attack score  {ATK} * 10 = {ATK*10}", get_font((75)), (255, 255, 255), 640, 550)
+        draw_text(f"Defense score {DEF} * 10 = {DEF*10}", get_font((75)), (255, 255, 255), 640, 650)
+        draw_text(f"Final score =  {HP+ATK*10+DEF*10}", get_font((75)), (255, 255, 255), 640, 750)
 
+
+        pygame.display.flip()
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -209,4 +222,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main_menu()
