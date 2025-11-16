@@ -29,14 +29,14 @@ ITEM_IMG_PATHS = {
 }
 
 ROOM_LAYOUT = {
-    (0, 0): "Attack",
-    (2, 0): "Tank(DEF)",
-    (0, 4): "Tank(DEF)",
-    (1, 2): "Normal",
-    (1, 3): "Tank(HP)",
-    (1, 4): "Def Gem",
+    (0, 0): "Attack",(0, 1): "Normal",(0, 3): "Normal",(0, 4): "Tank(HP)",
+    (1, 0): "Attack",(1, 1): "Tank(HP)",(1, 2): "Normal",(1, 3): "Tank(HP)",(1, 4): "Tank(DEF)",
+    (2, 0): "Def Gem",(2, 1): "Attack",(2, 2): "Atk Gem",(2, 3): "Tank(HP)",(2, 4): "Atk Gem",
+    (3, 0): "Tank(DEF)",(3, 1): "Tank(HP)",(3, 2): "Heal Potion",(3, 3): "Normal",(3, 4): "Tank(HP)",
+    (4, 0): "Tank(HP)",(4, 1): "Def Gem",(4, 2): "Tank(DEF)",(4, 3): "Tank(DEF)",(4, 4): "Def Gem",
+    (5, 0): "Atk Gem",(5, 1): "Tank(HP)",(5, 2): "Atk Gem",(5, 3): "Attack",(5, 4): "Heal Potion",
+    (6, 0): "Normal",(6, 1): "Def Gem",(6, 2): "Tank(HP)",(6, 3): "Tank(DEF)",(6, 4): "Attack",
 }
-
 BG = (18, 20, 28)
 ROOM_COLOR = (80, 120, 170)
 ROOM_BOSS = (190, 60, 60)
@@ -44,4 +44,5 @@ TEXT = (235, 235, 235)
 ARROW_COLOR = (255, 220, 130)
 
 ROOM_BG_IMAGE = "assets/dun2.png"
+
 BOSS_ROOM_BG_IMAGE = "assets/boss_room1.gif"
