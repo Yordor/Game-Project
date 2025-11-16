@@ -15,7 +15,7 @@ from tower import (
     build_tower, is_neighbor,
     draw_direction_arrows, draw_rooms_and_entities,
 )
-from combat import fight_until_end
+from combat import fight_until_end,defeat_enemy
 from item import apply_item
 
 pygame.init()
@@ -43,9 +43,9 @@ def main_menu():
         MENU_TEXT = get_font(150).render("MAIN MENU", True, "#b68f40")
         MENU_RECT = MENU_TEXT.get_rect(center=(940, 100))
 
-        PLAY_BUTTON = Button(image=pygame.image.load("assets/Play_Rect.png"), pos=(940, 450),
+        PLAY_BUTTON = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(940, 450),
                          text_input="PLAY", font=get_font(75), base_color="#000000", hovering_color="White")
-        QUIT_BUTTON = Button(image=pygame.image.load("assets/Quit_Rect.png"), pos=(940, 750),
+        QUIT_BUTTON = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(940, 750),
                          text_input="QUIT", font=get_font(75), base_color="#000000", hovering_color="White")
         SCREEN.blit(MENU_TEXT, MENU_RECT)
 
@@ -78,6 +78,7 @@ def end(HP,ATK,DEF):
         pygame.display.flip()
 def main():
     pygame.init()
+    Cooldown = 0
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("หอคอย")
     clock = pygame.time.Clock()
@@ -116,27 +117,31 @@ def main():
                 else:
                     f, c = current
                     candidate = None
-                    if e.key == pygame.K_LEFT:
-                        cand = (f, c - 1)
-                        if cand in links[current]:
-                            candidate = cand
-                    elif e.key == pygame.K_RIGHT:
-                        cand = (f, c + 1)
-                        if cand in links[current]:
-                            candidate = cand
-                    elif e.key == pygame.K_UP:
-                        cand = (f + 1, c)
-                        if cand in links.get(current, []):
-                            candidate = cand
-                    elif e.key == pygame.K_DOWN:
-                        cand = (f - 1, c)
-                        if cand in links.get(current, []):
-                            candidate = cand
-
+                    if Cooldown == 0:
+                        if e.key == pygame.K_LEFT:
+                            Cooldown = 1
+                            cand = (f, c - 1)
+                            if cand in links[current]:
+                                candidate = cand
+                        elif e.key == pygame.K_RIGHT:
+                            Cooldown = 1
+                            cand = (f, c + 1)
+                            if cand in links[current]:
+                                candidate = cand
+                        elif e.key == pygame.K_UP:
+                            Cooldown = 1
+                            cand = (f + 1, c)
+                            if cand in links.get(current, []):
+                                candidate = cand
+                        elif e.key == pygame.K_DOWN:
+                            Cooldown = 1
+                            cand = (f - 1, c)
+                            if cand in links.get(current, []):
+                                candidate = cand
                     if candidate:
                         path = [current, candidate]
-
-            elif e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
+            elif e.type == pygame.MOUSEBUTTONDOWN and e.button == 1 and Cooldown == 0:
+                Cooldown = 1
                 mx, my = e.pos
                 world_y = my - cam_y
                 clicked = None
@@ -178,6 +183,7 @@ def main():
                 pos.y += step * dy / dist
         else:
             path = [current]
+            Cooldown = 0
 
         # กล้องตามผู้เล่น
         cam_y += ((HEIGHT * 0.45 - (pos.y + cam_y)) * CAM_FOLLOW)
@@ -225,4 +231,3 @@ def main():
 if __name__ == "__main__":
 
     main_menu()
-
