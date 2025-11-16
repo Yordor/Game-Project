@@ -164,6 +164,7 @@ def main():
                     fight_until_end(screen, font, player, mon)
 
                     if mon.hp <= 0:
+                        defeat_enemy(player,mon)
                         del monsters[current]
 
                 if current in items and player.hp > 0:
@@ -224,3 +225,4 @@ def main():
 if __name__ == "__main__":
 
     main_menu()
+
