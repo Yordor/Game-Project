@@ -1,5 +1,6 @@
 class Player:
     def __init__(self):
-        self.hp = 120
-        self.atk = 22
-        self.defense = 6
+        self.hp = 300
+        self.atk = 15
+
+        self.defense = 3
