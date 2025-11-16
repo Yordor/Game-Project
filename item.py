@@ -1,6 +1,6 @@
 ITEM_STATS = {
-    "Atk Gem":     {"ATK": 10},
-    "Def Gem":     {"DEF": 10},
+    "Atk Gem":     {"ATK": 2},
+    "Def Gem":     {"DEF": 1},
     "Heal Potion": {"HP": 50},
 }
 
@@ -19,4 +19,5 @@ def apply_item(player, item_name):
         player.atk += stats["ATK"]
 
     if "DEF" in stats:
+
         player.defense += stats["DEF"]
