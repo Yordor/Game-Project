@@ -33,4 +33,9 @@ def fight_until_end(screen: pygame.Surface, font: pygame.font.Font,
         fight_round(player, monster)
 
     if player.hp <= 0:
+
         show_game_over(screen, font)
+def defeat_enemy(player: Player,monster: Monster):
+    player.hp += (monster.atk+monster.defense)//5
+    player.atk += monster.atk//10
+    player.defense += monster.defense//10
