@@ -221,7 +221,36 @@ def main():
         else:
             mon_text = font.render("", True, TEXT)
         screen.blit(mon_text, (15, HEIGHT - 50))
-
+        
+        mx, my = pygame.mouse.get_pos()
+        mon_ui = None
+        item_ui = None
+        for key, mon in monsters.items():
+            rect = rooms[key]
+            rr = rect.copy()
+            rr.y += cam_y
+            if rr.collidepoint(mx, my):
+                mon_ui = mon
+                break
+        for key, item_1 in items.items():
+            rect = rooms[key]
+            rr = rect.copy()
+            rr.y += cam_y
+            if rr.collidepoint(mx, my):
+                item_ui = item_1
+                break
+        if mon_ui:
+            mon_ui_text = font.render(f"{mon_ui.name} | HP:{mon_ui.hp}  ATK:{mon_ui.atk}  DEF:{mon_ui.defense}",True, (255, 255, 255))
+            SCREEN.blit(mon_ui_text, (mx+30, my+30))
+        if item_ui:
+            stats = ITEM_STATS[item_ui]
+            bonus = ""
+            for stats, amount in stats.items():
+                bonus = f"+{amount} {stats}"
+            if item_ui:
+                item_ui_text = font.render(f"{item_ui} | {bonus}",True, (255, 255, 255))
+            SCREEN.blit(item_ui_text, (mx+30, my+30))
+        
         pygame.display.flip()
 
     pygame.quit()
@@ -231,3 +260,4 @@ def main():
 if __name__ == "__main__":
 
     main_menu()
+
