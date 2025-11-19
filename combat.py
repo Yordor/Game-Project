@@ -17,14 +17,23 @@ def fight_round(player: Player, monster: Monster):
 
 
 def show_game_over(screen: pygame.Surface, font: pygame.font.Font):
-    screen.fill((0, 0, 0))
-    die_text = font.render("YOU DIE", True, (255, 50, 50))
-    text_rect = die_text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-    screen.blit(die_text, text_rect)
-    pygame.display.flip()
-    pygame.time.wait(2000)
-    pygame.quit()
-    sys.exit()
+    Restart = True
+    while Restart:
+        screen.fill((0, 0, 0))
+        
+        die_text = font.render("YOU DIE", True, (255, 50, 50))
+        screen.blit(die_text,die_text.get_rect(center=(WIDTH // 2, HEIGHT // 2)))
+        
+        restart_text = font.render("Press F to Restart", True, (255, 255, 255))
+        screen.blit(restart_text,restart_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 40)))
+
+        pygame.display.flip()
+        
+        for e in pygame.event.get():
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_f:
+                    from main import main
+                    main()
 
 
 def fight_until_end(screen: pygame.Surface, font: pygame.font.Font,
@@ -51,5 +60,6 @@ def defeat_enemy(player: Player,monster: Monster):
         player.hp += 200
         player.atk += 5
         player.defense += 3
+
 
 
