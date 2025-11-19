@@ -16,7 +16,7 @@ from tower import (
     draw_direction_arrows, draw_rooms_and_entities,
 )
 from combat import fight_until_end,defeat_enemy
-from item import apply_item
+from item import apply_item,ITEM_STATS
 
 pygame.init()
 FONT = pygame.font.SysFont("consolas", 20)
@@ -66,19 +66,28 @@ def main_menu():
 
         pygame.display.update()
 def end(HP,ATK,DEF):
-    while True:
+    running = True
+    while running:
         SCREEN.fill((0, 0, 0))
         draw_text("Final Score",get_font((150)),(255,255,255),640,150)
         draw_text(f"HP score = {HP}", get_font((75)), (255, 255, 255), 640, 450)
         draw_text(f"Attack score  {ATK} * 10 = {ATK*10}", get_font((75)), (255, 255, 255), 640, 550)
         draw_text(f"Defense score {DEF} * 10 = {DEF*10}", get_font((75)), (255, 255, 255), 640, 650)
         draw_text(f"Final score =  {HP+ATK*10+DEF*10}", get_font((75)), (255, 255, 255), 640, 750)
-
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
 
         pygame.display.flip()
 def main():
     pygame.init()
     Cooldown = 0
+    Winner = 0
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("หอคอย")
     clock = pygame.time.Clock()
@@ -114,6 +123,8 @@ def main():
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
                     running = False
+                elif e.key == pygame.K_e and Winner == 1:
+                    end(player.hp, player.atk, player.defense)
                 else:
                     f, c = current
                     candidate = None
@@ -151,7 +162,6 @@ def main():
                         break
                 if clicked and is_neighbor(links, current, clicked):
                     path = [current, clicked]
-
         # การเคลื่อนที่
         if len(path) >= 2:
             nxt = path[1]
@@ -169,6 +179,9 @@ def main():
                     fight_until_end(screen, font, player, mon)
 
                     if mon.hp <= 0:
+                        if mon.name == "BOSS":
+                            Winner = 1
+                            pygame.display.flip()
                         defeat_enemy(player,mon)
                         del monsters[current]
 
@@ -184,7 +197,6 @@ def main():
         else:
             path = [current]
             Cooldown = 0
-
         # กล้องตามผู้เล่น
         cam_y += ((HEIGHT * 0.45 - (pos.y + cam_y)) * CAM_FOLLOW)
 
@@ -250,6 +262,8 @@ def main():
             if item_ui:
                 item_ui_text = font.render(f"{item_ui} | {bonus}",True, (255, 255, 255))
             SCREEN.blit(item_ui_text, (mx+30, my+30))
+        if Winner == 1:
+            draw_text("Press E to Finish the game", get_font((40)), (255, 255, 255), 40, 0)
         
         pygame.display.flip()
 
