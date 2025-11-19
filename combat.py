@@ -36,19 +36,20 @@ def fight_until_end(screen: pygame.Surface, font: pygame.font.Font,
 
         show_game_over(screen, font)
 def defeat_enemy(player: Player,monster: Monster):
-    if monster.name == "Tank(HP)":
+    if monster.name == "Ghost":
         player.hp += 100
-    elif monster.name == "Tank(DEF)":
+    elif monster.name == "Spider":
         player.hp += 50
         player.defense += 2
-    elif monster.name == "Attack":
+    elif monster.name == "Bat":
         player.hp += 30
         player.atk += 3
-    elif monster.name == "Normal":
+    elif monster.name == "Slime":
         player.hp += 40
         player.atk += 1
-    elif monster.name == "Boss":
+    elif monster.name == "BOSS":
         player.hp += 200
         player.atk += 5
         player.defense += 3
+
 
