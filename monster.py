@@ -1,7 +1,7 @@
 MONSTER_STATS = {
-    "Slime":   {"HP": 50, "ATK": 15, "DEF": 5},
+    "Slime":   {"HP": 80, "ATK": 20, "DEF": 5},
     "Ghost": {"HP": 200, "ATK": 10,  "DEF": 4},
-    "Spider": {"HP": 30, "ATK": 10, "DEF": 20},
+    "Spider": {"HP": 50, "ATK": 15, "DEF": 15},
     "Bat":   {"HP": 30, "ATK": 40, "DEF": 2},
     "BOSS":     {"HP": 220, "ATK": 40, "DEF": 12},
 }
