@@ -74,14 +74,15 @@ def end(HP,ATK,DEF):
         draw_text(f"Attack score  {ATK} * 10 = {ATK*10}", get_font((75)), (255, 255, 255), 640, 550)
         draw_text(f"Defense score {DEF} * 10 = {DEF*10}", get_font((75)), (255, 255, 255), 640, 650)
         draw_text(f"Final score =  {HP+ATK*10+DEF*10}", get_font((75)), (255, 255, 255), 640, 750)
+        draw_text(f"Press F To Restart", get_font((75)),(255, 255, 255), 640, 850)
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             elif e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                if e.key == pygame.K_f:
+                    from main import main
+                    main()    
 
         pygame.display.flip()
 def main():
@@ -274,4 +275,5 @@ def main():
 if __name__ == "__main__":
 
     main_menu()
+
 
