@@ -26,7 +26,7 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 def load_player_image():
     try:
         img = pygame.image.load(PLAYER_IMG_PATH).convert_alpha()
-        return pygame.transform.smoothscale(img, (46, 46))
+        return pygame.transform.smoothscale(img, (60, 60))
     except:
         return None
 def get_font(size):
@@ -275,6 +275,7 @@ def main():
 if __name__ == "__main__":
 
     main_menu()
+
 
 
 
