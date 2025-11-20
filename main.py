@@ -90,7 +90,7 @@ def main():
     Cooldown = 0
     Winner = 0
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("หอคอย")
+    pygame.display.set_caption("เกมไต่หอคอยสุดโหดดดด")
     clock = pygame.time.Clock()
 
     font = pygame.font.SysFont("consolas", 20)
@@ -275,5 +275,6 @@ def main():
 if __name__ == "__main__":
 
     main_menu()
+
 
 
